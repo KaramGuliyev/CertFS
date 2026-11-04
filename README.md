@@ -10,22 +10,22 @@ It also re-quizzes your **errors** with new versions until you master them.
 - 📊 Every answer goes to a local **history** → stats + no repeated questions.
 - 🔁 Shareable: copy the folder (without `data.json` and `history.json`) to any vault.
 
-> 📁 This file lives in `.obsidian/`, so it never shows up in the vault.
-
 ---
+
+## 📥 Install
+
+- 🛍️ **Community plugins:** Settings → Community plugins → Browse → search **CertFS Quiz** → Install → Enable.
+- 🧪 **Before it is listed (BRAT):** install the **BRAT** plugin → *Add beta plugin* → `KaramGuliyev/CertFS`.
+- 📦 **Manual:** download `main.js`, `manifest.json`, `styles.css` from the latest [release](https://github.com/KaramGuliyev/CertFS/releases) into `<vault>/.obsidian/plugins/certfs-quiz/` → restart Obsidian → enable **CertFS Quiz**.
 
 ## ⚙️ Setup (once)
 
-1. 🔄 Run `git pull` in the vault folder.
-2. 🧹 Settings → Community plugins → uninstall **Quiz maker** and **Wetstone**.
-3. 🗑️ Delete the old `wetstone/` folder in the vault.
-4. ✅ Turn on **CertFS Quiz**. Not in the list? Restart Obsidian.
-5. 🔑 Make a key at **openrouter.ai → Keys**.
-6. 📋 Settings → **CertFS Quiz** → paste the key.
-7. 📥 Click **Load free models** → pick one that ends in `:free`.
+1. 🔑 Make a key at **openrouter.ai → Keys**.
+2. 📋 Settings → **CertFS Quiz** → paste the key.
+3. 📥 Click **Load free models** → pick one that ends in `:free`.
    - 🧹 The list shows only models that can chat (no embed, TTS, rerank).
-8. 💲 On openrouter.ai, leave the key's **credit limit empty**. Don't set it to $0.
-9. 📚 Settings → **Subjects**: check the list. On first run, presets whose folder exists are added.
+4. 💲 On openrouter.ai, leave the key's **credit limit empty**. Don't set it to $0.
+5. 📚 Settings → **Subjects**: check the list. On first run, presets whose folder exists are added.
    - ➕ **Add subject** → name, folder, rules note (optional), question style (optional).
    - 🔍 Folder and Rules note boxes **search the vault** as you type → click a result.
    - 📦 **Add presets** → adds CSM, PMP, CPMAI (edit their folders to match your vault).
@@ -93,7 +93,7 @@ It also re-quizzes your **errors** with new versions until you master them.
 | Rules note | `**Rule:** → [[...]]` line in error notes (empty = no line) |
 | Question style | Optional. Empty → the AI guesses the exam from name + folder. Fill it to steer wording, traps, scenario type |
 
-Presets (this vault):
+Presets (default folders, edit them in Settings):
 
 | Folder | Style | Rules link |
 |---|---|---|
