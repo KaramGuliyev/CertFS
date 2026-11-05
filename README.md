@@ -191,6 +191,16 @@ Presets (default folders, edit them in Settings):
 
 ## 🔒 Privacy
 
+**Network requests (only 2, both to `openrouter.ai`):**
+- 🌐 `POST https://openrouter.ai/api/v1/chat/completions`: generates and grades questions. Sent only when you start a quiz (or press Check on a short answer / matching). Carries the note text, your settings for the quiz and your API key.
+- 🌐 `GET https://openrouter.ai/api/v1/models`: lists free models when you press **Load free models** in Settings. No note text.
+- 🚫 No telemetry, no analytics, no other servers.
+
+**Vault access:**
+- 📂 The file list (`getMarkdownFiles`) is read **only on your device**: to find the notes of a folder quiz, to show the note picker in **Quiz multiple notes**, to find error notes, and for the folder / note search in Settings. File paths are never sent anywhere.
+- ✍️ Writes only inside your subject folders (error notes, archive moves, `Stats.md`) and `history.json` in the plugin folder.
+
+**Data:**
 - 📤 The note text (max **24,000** characters) is sent to OpenRouter and the chosen model.
 - 🚫 Don't quiz notes with private data.
 - 🔑 The key is stored in `data.json` in this folder, **unencrypted**.
@@ -203,6 +213,9 @@ Presets (default folders, edit them in Settings):
 
 **0.3.5**
 - 📚 New: **Quiz multiple notes**. Pick notes with search + checkboxes, or multi-select them in the file explorer and right-click.
+- 🔒 README → Privacy now lists the 2 network calls and why the vault file list is read.
+- 🛡️ Releases now carry GitHub artifact attestations (build provenance) for `main.js`, `manifest.json`, `styles.css`.
+- 🤝 Added `CONTRIBUTING.md`.
 
 **0.3.4**
 - 🤖 Empty **Question style** → the AI infers the exam from the subject name + folder. Name + folder is enough to start.
