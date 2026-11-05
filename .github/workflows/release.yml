@@ -1,9 +1,14 @@
 name: Release Obsidian plugin
 
+# Two ways to release:
+#  - push a tag equal to manifest.json's version (no "v"), or
+#  - Actions → "Release Obsidian plugin" → Run workflow (on master): releases manifest.json's version,
+#    creating the tag at the current commit.
 on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,12 +21,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check tag matches manifest version
+      - name: Resolve version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           v=$(node -p "require('./manifest.json').version")
-          if [ "$v" != "${GITHUB_REF_NAME}" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match manifest.json version $v"; exit 1
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            if [ "$v" != "${GITHUB_REF_NAME}" ]; then
+              echo "Tag ${GITHUB_REF_NAME} does not match manifest.json version $v"; exit 1
+            fi
+          elif gh release view "$v" >/dev/null 2>&1; then
+            echo "Release $v already exists. Bump manifest.json first."; exit 1
           fi
+          echo "tag=$v" >> "$GITHUB_OUTPUT"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
@@ -34,8 +47,10 @@ jobs:
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            --title "${GITHUB_REF_NAME}" \
+          gh release create "$TAG" \
+            --target "${GITHUB_SHA}" \
+            --title "$TAG" \
             --generate-notes \
             main.js manifest.json styles.css

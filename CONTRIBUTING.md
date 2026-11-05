@@ -27,5 +27,5 @@ Never paste your OpenRouter API key or private note content.
 ## Releases (maintainer)
 
 1. Bump `version` in `manifest.json` and add it to `versions.json`.
-2. Merge to `master`, then push a tag equal to the version (no `v`, e.g. `0.3.5`).
+2. Merge to `master`, then either push a tag equal to the version (no `v`, e.g. `0.3.5`) or run the **Release Obsidian plugin** workflow from the Actions tab.
 3. The release workflow checks the tag, attests the build provenance of `main.js`, `manifest.json` and `styles.css`, and publishes the GitHub release.
