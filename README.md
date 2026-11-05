@@ -12,11 +12,31 @@ It also re-quizzes your **errors** with new versions until you master them.
 
 ---
 
+## 📑 Contents
+
+- [📥 Install](#-install)
+- [⚙️ Setup (once)](#-setup-once)
+- [🎯 Daily use](#-daily-use)
+- [🧩 Question types](#-question-types)
+- [🗂️ How it picks the subject](#-how-it-picks-the-subject)
+- [❌ Error notes (automatic)](#-error-notes-automatic)
+- [🔁 Errors → Archive (mastery)](#-errors--archive-mastery)
+- [📊 Answer history + stats](#-answer-history--stats)
+- [💸 Free limits (OpenRouter)](#-free-limits-openrouter)
+- [🛠️ Errors and fixes](#-errors-and-fixes)
+- [🔒 Privacy](#-privacy)
+- [📝 What's new](#-whats-new)
+- [🧑‍💻 For developers](#-for-developers)
+
+---
+
 ## 📥 Install
 
 - 🛍️ **Community plugins:** Settings → Community plugins → Browse → search **CertFS Quiz** → Install → Enable.
 - 🧪 **Before it is listed (BRAT):** install the **BRAT** plugin → *Add beta plugin* → `KaramGuliyev/CertFS`.
 - 📦 **Manual:** download `main.js`, `manifest.json`, `styles.css` from the latest [release](https://github.com/KaramGuliyev/CertFS/releases) into `<vault>/.obsidian/plugins/certfs-quiz/` → restart Obsidian → enable **CertFS Quiz**.
+
+[⬆️ Back to contents](#-contents)
 
 ## ⚙️ Setup (once)
 
@@ -29,6 +49,8 @@ It also re-quizzes your **errors** with new versions until you master them.
    - ➕ **Add subject** → name, folder, rules note (optional), question style (optional).
    - 🔍 Folder and Rules note boxes **search the vault** as you type → click a result.
    - 📦 **Add presets** → adds CSM, PMP, CPMAI (edit their folders to match your vault).
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -67,6 +89,8 @@ It also re-quizzes your **errors** with new versions until you master them.
 - 👀 **Review missed** → each missed question with the right answer and why. No re-test.
 - 🆕 **New questions on missed topics** → fresh questions, no repeats.
 
+[⬆️ Back to contents](#-contents)
+
 ---
 
 ## 🧩 Question types
@@ -82,6 +106,8 @@ It also re-quizzes your **errors** with new versions until you master them.
 
 - 🎛️ Turn types on/off in Settings or in the quiz setup.
 - 🔀 Options are shuffled every time.
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -106,6 +132,8 @@ Presets (default folders, edit them in Settings):
 | `2 PMP/` | PMP (PMI mindset) | `Mindset Rules` |
 | `3 CPMAI/` | CPMAI | `CPMAI Rules` |
 
+[⬆️ Back to contents](#-contents)
+
 ---
 
 ## ❌ Error notes (automatic)
@@ -118,6 +146,8 @@ Presets (default folders, edit them in Settings):
 - 🔁 Same topic, same day, **different** question → added to the same note in full.
 - 🔂 Same question again → one "wrong again" log line, and the review resets to tomorrow.
 - 🚫 Turn off with **Save mistakes as error notes** in Settings.
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -144,6 +174,8 @@ Presets (default folders, edit them in Settings):
 - ✅ Right → 🗑️ **Delete** (to trash) or 📦 **Keep**.
 - ❌ Wrong → back to active `Errors/`, `streak: 0`, again tomorrow.
 
+[⬆️ Back to contents](#-contents)
+
 ---
 
 ## 📊 Answer history + stats
@@ -158,6 +190,8 @@ Presets (default folders, edit them in Settings):
 - ⚙️ Settings → **Keep answer history** (off = nothing saved) and **Clear history**.
 - 💡 It is a history, not a question bank: questions are always new.
 
+[⬆️ Back to contents](#-contents)
+
 ---
 
 ## 💸 Free limits (OpenRouter)
@@ -169,6 +203,8 @@ Presets (default folders, edit them in Settings):
 - 🔁 Busy model (429/502/503) → it retries twice by itself (4s, then 8s).
 - 🙈 A failed 429 may not show in OpenRouter **Logs**.
 - 🔎 The error message shows OpenRouter's own reason.
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -186,6 +222,8 @@ Presets (default folders, edit them in Settings):
 | Response cut off | Ask for fewer questions |
 | No usable questions | Try again, or pick another free model |
 | Note too short | Note needs 80+ characters |
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -206,6 +244,8 @@ Presets (default folders, edit them in Settings):
 - 🔑 The key is stored in `data.json` in this folder, **unencrypted**.
 - 🙈 `data.json` and `history.json` are gitignored, so they never go to GitHub.
 - ☁️ iCloud still syncs it, so keep the key private.
+
+[⬆️ Back to contents](#-contents)
 
 ---
 
@@ -251,6 +291,8 @@ Presets (default folders, edit them in Settings):
 **0.1**
 - 🧠 First version: note or selection quiz, 6 question types, hints, auto error notes.
 
+[⬆️ Back to contents](#-contents)
+
 ---
 
 ## 🧑‍💻 For developers
@@ -262,3 +304,5 @@ Presets (default folders, edit them in Settings):
 - 📚 Subjects live in `data.json` (`subjects: [{name, folder, rules, style}]`). Presets are in `PRESET_SUBJECTS`.
 - ✅ Tested: helper unit tests (parse, normalize, grade, error notes, subjects, intervals, history) + a fake-vault flow.
 - ⚠️ Not auto-tested: the UI and live OpenRouter calls.
+
+[⬆️ Back to contents](#-contents)
