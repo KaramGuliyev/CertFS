@@ -6,7 +6,7 @@
 'use strict';
 
 const obsidian = require('obsidian');
-const { Plugin, PluginSettingTab, Setting, Modal, Notice, requestUrl, FuzzySuggestModal, TFolder } = obsidian;
+const { Plugin, PluginSettingTab, Setting, Modal, Notice, requestUrl, FuzzySuggestModal, TFolder, TFile } = obsidian;
 
 const API = 'https://openrouter.ai/api/v1';
 const MAX_SOURCE_CHARS = 24000;
@@ -65,6 +65,18 @@ function detectSubject(path, subjects) {
     if (!f || !(p === f || p.startsWith(`${f}/`))) continue;
     if (!best || f.length > normFolder(best.folder).length) best = sub;
   }
+  return best;
+}
+
+/** Subject for a group of notes: the one most of them belong to (ties → first seen). null if none has one. */
+function commonSubject(paths, subjects) {
+  const counts = new Map();
+  for (const p of paths || []) {
+    const sub = detectSubject(p, subjects);
+    if (sub) counts.set(sub, (counts.get(sub) || 0) + 1);
+  }
+  let best = null;
+  for (const [sub, n] of counts) if (!best || n > counts.get(best)) best = sub;
   return best;
 }
 
@@ -933,6 +945,77 @@ class FolderSuggest extends FuzzySuggestModal {
   onChooseItem(f) { this.plugin.quizFolder(f); }
 }
 
+/** Pick several notes (search + checkboxes), then quiz them together. */
+class NotesPickerModal extends Modal {
+  constructor(plugin, preselected) {
+    super(plugin.app);
+    this.plugin = plugin;
+    this.selected = new Map((preselected || []).map((f) => [f.path, f]));
+    this.query = '';
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    this.modalEl.addClass('certfs-quiz');
+    this.titleEl.setText('Quiz multiple notes');
+    const search = contentEl.createEl('input', { type: 'text', cls: 'certfs-quiz-search', attr: { placeholder: 'Search notes by name or path…' } });
+    search.addEventListener('input', () => { this.query = search.value.trim().toLowerCase(); this.renderList(); });
+    this.chipsEl = contentEl.createDiv({ cls: 'certfs-quiz-chips' });
+    this.listEl = contentEl.createDiv({ cls: 'certfs-quiz-picklist' });
+    const row = contentEl.createDiv({ cls: 'certfs-quiz-row' });
+    this.goBtn = row.createEl('button', { cls: 'mod-cta' });
+    this.goBtn.addEventListener('click', () => this.go());
+    row.createEl('button', { text: 'Clear' }).addEventListener('click', () => { this.selected.clear(); this.renderList(); });
+    this.renderList();
+    setTimeout(() => search.focus(), 0);
+  }
+
+  candidates() {
+    const q = this.query;
+    return this.app.vault.getMarkdownFiles()
+      .filter((f) => !this.plugin.isStatsFile(f))
+      .filter((f) => !q || f.path.toLowerCase().includes(q))
+      .sort((a, b) => b.stat.mtime - a.stat.mtime)
+      .slice(0, 100);
+  }
+
+  toggle(f, on) {
+    if (on) this.selected.set(f.path, f); else this.selected.delete(f.path);
+    this.renderList();
+  }
+
+  renderList() {
+    this.chipsEl.empty();
+    for (const f of this.selected.values()) {
+      const chip = this.chipsEl.createEl('span', { cls: 'certfs-quiz-chip', text: `${f.basename} ✕`, attr: { title: `Remove ${f.path}` } });
+      chip.addEventListener('click', () => this.toggle(f, false));
+    }
+    this.listEl.empty();
+    const items = this.candidates();
+    if (!items.length) this.listEl.createEl('p', { cls: 'certfs-quiz-muted', text: 'No notes match.' });
+    for (const f of items) {
+      const label = this.listEl.createEl('label', { cls: 'certfs-quiz-option' });
+      const cb = label.createEl('input', { type: 'checkbox' });
+      cb.checked = this.selected.has(f.path);
+      cb.addEventListener('change', () => this.toggle(f, cb.checked));
+      label.appendText(` ${f.basename} `);
+      label.createEl('span', { cls: 'certfs-quiz-muted', text: f.parent && f.parent.path !== '/' ? f.parent.path : '' });
+    }
+    const n = this.selected.size;
+    this.goBtn.setText(n ? `Quiz ${n} note${n > 1 ? 's' : ''}` : 'Pick notes');
+    this.goBtn.disabled = n === 0;
+  }
+
+  async go() {
+    const files = [...this.selected.values()];
+    if (!files.length) return;
+    this.close();
+    await this.plugin.quizFiles(files);
+  }
+
+  onClose() { this.contentEl.empty(); }
+}
+
 class CertfsQuizSettingTab extends PluginSettingTab {
   constructor(app, plugin) { super(app, plugin); this.plugin = plugin; }
 
@@ -1054,10 +1137,17 @@ class CertfsQuizPlugin extends Plugin {
     this.addRibbonIcon('rotate-ccw', 'CertFS Quiz: quiz my errors', () => this.openErrors('errors'));
     this.addCommand({ id: 'quiz-note', name: 'Quiz this note', callback: () => this.quizActiveNote() });
     this.addCommand({ id: 'quiz-folder', name: 'Quiz a folder', callback: () => new FolderSuggest(this).open() });
+    this.addCommand({ id: 'quiz-notes', name: 'Quiz multiple notes', callback: () => this.pickNotes() });
     this.addCommand({ id: 'quiz-errors', name: 'Quiz my errors', callback: () => this.openErrors('errors') });
     this.addCommand({ id: 'quiz-archive', name: 'Test my archive', callback: () => this.openErrors('archive') });
     this.addCommand({ id: 'quiz-stats', name: 'Show my stats', callback: async () => new StatsModal(this, await this.loadHistory()).open() });
     this.app.workspace.onLayoutReady(() => this.seedSubjects());
+    // File explorer: select several notes (Ctrl/Cmd/Shift+click) → right-click → Quiz these notes
+    this.registerEvent(this.app.workspace.on('files-menu', (menu, files) => {
+      const notes = files.filter((f) => f instanceof TFile && f.extension === 'md');
+      if (notes.length < 2) return;
+      menu.addItem((item) => item.setTitle(`CertFS Quiz: quiz ${notes.length} notes`).setIcon('brain-circuit').onClick(() => this.quizFiles(notes)));
+    }));
     this.addCommand({
       id: 'quiz-selection',
       name: 'Quiz selected text',
@@ -1138,7 +1228,17 @@ class CertfsQuizPlugin extends Plugin {
     }
   }
 
-  /* ----- folder quiz ----- */
+  /* ----- folder + multi-note quiz ----- */
+
+  /** Read notes for a group quiz; drops ones that are too short to quiz on. */
+  async readNotes(files) {
+    const notes = [];
+    for (const f of files) {
+      const text = stripFrontmatter(await this.app.vault.cachedRead(f)).trim();
+      if (text.length >= 80) notes.push({ title: f.basename, path: f.path, text });
+    }
+    return notes;
+  }
 
   async quizFolder(folder) {
     const skip = skipRegex(this.settings);
@@ -1146,13 +1246,27 @@ class CertfsQuizPlugin extends Plugin {
       .filter((f) => f.path.startsWith(`${folder.path}/`))
       .filter((f) => !(skip && skip.test(f.path.slice(folder.path.length))) && !f.basename.startsWith('_') && !this.isStatsFile(f))
       .sort((a, b) => a.path.localeCompare(b.path));
-    const notes = [];
-    for (const f of files) {
-      const text = stripFrontmatter(await this.app.vault.cachedRead(f)).trim();
-      if (text.length >= 80) notes.push({ title: f.basename, text });
-    }
+    const notes = await this.readNotes(files);
     if (!notes.length) { new Notice('No study notes in this folder.'); return; }
     this.open({ title: `${folder.name} (${notes.length} notes)`, path: folder.path, ...this.subjectOf(folder.path), text: packNotes(notes, MAX_SOURCE_CHARS), multi: notes.length > 1 });
+  }
+
+  /** Open the note picker; the active note is ticked to start with. */
+  pickNotes() {
+    const active = this.app.workspace.getActiveFile();
+    new NotesPickerModal(this, active && active.extension === 'md' ? [active] : []).open();
+  }
+
+  /** Quiz several hand-picked notes together (same flow as a folder quiz). */
+  async quizFiles(files) {
+    const notes = await this.readNotes(files);
+    if (!notes.length) { new Notice('These notes are too short to quiz on.'); return; }
+    const skipped = files.length - notes.length;
+    if (skipped) new Notice(`Skipped ${skipped} note${skipped > 1 ? 's' : ''} that ${skipped > 1 ? 'are' : 'is'} too short.`);
+    const paths = notes.map((n) => n.path).sort();
+    const subject = commonSubject(paths, this.subjects());
+    const title = notes.length === 1 ? notes[0].title : `${notes[0].title} + ${notes.length - 1} more`;
+    this.open({ title, path: paths.join(' + '), exam: subjectName(subject), subject, text: packNotes(notes, MAX_SOURCE_CHARS), multi: notes.length > 1 });
   }
 
   /* ----- error re-quiz + archive ----- */
@@ -1320,4 +1434,4 @@ class CertfsQuizPlugin extends Plugin {
 }
 
 module.exports = CertfsQuizPlugin;
-module.exports._test = { withTimeout, detectSubject, subjectName, errorsDir, archiveDir, intervalFor, parseIntervals, skipRegex, addHistory, recentQuestions, historyStats, statsNote, subjectStyle, PRESET_SUBJECTS, distribute, stripFrontmatter, buildMessages, parseJson, normalizeQuestions, grade, correctText, givenText, errorNote, appendMistake, errorDetail, chatFreeModels, parseErrorNote, buildErrorMessages, matchErrorQuestions, isDue, nextErrorState, appendLog, logLine, packNotes, ymd, addDays, safeName, chat };
+module.exports._test = { withTimeout, detectSubject, commonSubject, subjectName, errorsDir, archiveDir, intervalFor, parseIntervals, skipRegex, addHistory, recentQuestions, historyStats, statsNote, subjectStyle, PRESET_SUBJECTS, distribute, stripFrontmatter, buildMessages, parseJson, normalizeQuestions, grade, correctText, givenText, errorNote, appendMistake, errorDetail, chatFreeModels, parseErrorNote, buildErrorMessages, matchErrorQuestions, isDue, nextErrorState, appendLog, logLine, packNotes, ymd, addDays, safeName, chat };
