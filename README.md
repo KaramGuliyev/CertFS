@@ -1,6 +1,6 @@
 # 🧠 CertFS Quiz
 
-An Obsidian plugin. It quizzes you on a **note**, a **selection** or a **folder**, in exam style.
+An Obsidian plugin. It quizzes you on a **note**, a **selection**, **several notes** or a **folder**, in exam style.
 It also re-quizzes your **errors** with new versions until you master them.
 
 - 🤖 Questions come from an **OpenRouter model** (free ones work).
@@ -40,7 +40,7 @@ It also re-quizzes your **errors** with new versions until you master them.
 | ✂️ Quiz part of a note | Select text → Ctrl+P → **Quiz selected text** |
 | ⚙️ Pick settings | Count (1–15), difficulty, optional **focus**, question types |
 | 🚀 Start | **Generate** |
-
+| 📚 Quiz several notes | Ctrl+P → **Quiz multiple notes** → search + tick notes, or select notes in the file explorer (Ctrl/Cmd+click) → right-click → **CertFS Quiz: quiz N notes** |
 | 📁 Quiz a whole folder | Ctrl+P → **Quiz a folder** → pick it |
 | 🔁 Re-quiz errors | ↺ ribbon icon, or Ctrl+P → **Quiz my errors** |
 | 📦 Test the archive | Ctrl+P → **Test my archive** |
@@ -49,6 +49,11 @@ It also re-quizzes your **errors** with new versions until you master them.
 - 📚 Uses every note in the folder and its subfolders.
 - 🚫 Skips `Errors/`, `Archive/`, `Mocks/` and files starting with `_` (Settings: **Folder quiz skips**).
 - ⚖️ Each note gets a fair share of the 24,000-character limit.
+
+**Multiple notes quiz:**
+- ✅ The open note is ticked to start with; search by name or path, tick more.
+- 📚 Same flow as a folder quiz: one request, questions spread across the notes.
+- 🗂️ Subject = the one most picked notes belong to (errors go there).
 
 **In the quiz:**
 - 💡 **Hint** → a small push, not the answer.
@@ -186,6 +191,16 @@ Presets (default folders, edit them in Settings):
 
 ## 🔒 Privacy
 
+**Network requests (only 2, both to `openrouter.ai`):**
+- 🌐 `POST https://openrouter.ai/api/v1/chat/completions`: generates and grades questions. Sent only when you start a quiz (or press Check on a short answer / matching). Carries the note text, your settings for the quiz and your API key.
+- 🌐 `GET https://openrouter.ai/api/v1/models`: lists free models when you press **Load free models** in Settings. No note text.
+- 🚫 No telemetry, no analytics, no other servers.
+
+**Vault access:**
+- 📂 The file list (`getMarkdownFiles`) is read **only on your device**: to find the notes of a folder quiz, to show the note picker in **Quiz multiple notes**, to find error notes, and for the folder / note search in Settings. File paths are never sent anywhere.
+- ✍️ Writes only inside your subject folders (error notes, archive moves, `Stats.md`) and `history.json` in the plugin folder.
+
+**Data:**
 - 📤 The note text (max **24,000** characters) is sent to OpenRouter and the chosen model.
 - 🚫 Don't quiz notes with private data.
 - 🔑 The key is stored in `data.json` in this folder, **unencrypted**.
@@ -195,6 +210,12 @@ Presets (default folders, edit them in Settings):
 ---
 
 ## 📝 What's new
+
+**0.3.5**
+- 📚 New: **Quiz multiple notes**. Pick notes with search + checkboxes, or multi-select them in the file explorer and right-click.
+- 🔒 README → Privacy now lists the 2 network calls and why the vault file list is read.
+- 🛡️ Releases now carry GitHub artifact attestations (build provenance) for `main.js`, `manifest.json`, `styles.css`.
+- 🤝 Added `CONTRIBUTING.md`.
 
 **0.3.4**
 - 🤖 Empty **Question style** → the AI infers the exam from the subject name + folder. Name + folder is enough to start.

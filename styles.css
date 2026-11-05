@@ -22,3 +22,8 @@
 .certfs-quiz-style-setting { flex-direction: column; align-items: stretch; gap: 8px; }
 .certfs-quiz-style-setting .setting-item-control { width: 100%; }
 .certfs-quiz-style { width: 100%; min-height: 96px; resize: vertical; }
+/* Quiz multiple notes: picker */
+.certfs-quiz-search { width: 100%; margin-bottom: 8px; }
+.certfs-quiz-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.certfs-quiz-chip { padding: 2px 8px; border-radius: 12px; background: var(--background-modifier-hover); font-size: var(--font-smaller); cursor: pointer; }
+.certfs-quiz-picklist { max-height: 45vh; overflow-y: auto; }
