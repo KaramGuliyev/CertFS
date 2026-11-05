@@ -1,0 +1,50 @@
+name: Bug report
+description: Something in CertFS Quiz does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting! Please never paste your OpenRouter API key or private notes."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a note in ...
+        2. Run "Quiz multiple notes"
+        3. ...
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: e.g. 0.3.5
+    validations:
+      required: true
+  - type: input
+    id: obsidian-version
+    attributes:
+      label: Obsidian version
+      placeholder: e.g. 1.9.10
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [Windows, macOS, Linux, iOS, Android]
+  - type: input
+    id: model
+    attributes:
+      label: OpenRouter model
+      placeholder: e.g. meta-llama/llama-3.3-70b-instruct:free
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error message or console log
+      description: The notice text, or errors from the developer console (Ctrl/Cmd+Shift+I).
+      render: text
