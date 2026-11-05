@@ -1,25 +1,65 @@
 name: Release Obsidian plugin
 
 # Two ways to release:
-#  - push a tag equal to manifest.json's version (no "v"), or
-#  - Actions → "Release Obsidian plugin" → Run workflow (on master): releases manifest.json's version,
-#    creating the tag at the current commit.
+#  - Actions → "Release Obsidian plugin" → Run workflow → pick a bump:
+#      patch 0.3.5 → 0.3.6 · minor 0.3.5 → 0.4.0 · major 0.3.5 → 1.0.0
+#      none = release the version already in manifest.json (if not released yet)
+#    The workflow updates manifest.json + versions.json, commits to master, tags and releases.
+#  - Or push a tag equal to manifest.json's version (no "v").
 on:
   push:
     tags:
       - "*"
   workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump
+        type: choice
+        options: [patch, minor, major, none]
+        default: patch
 
 permissions:
   contents: write
   id-token: write
   attestations: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+        with:
+          # manual runs always start from the latest master, never an old commit
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'master' || github.ref }}
+
+      - name: Bump version
+        if: github.event_name == 'workflow_dispatch' && inputs.bump != 'none'
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const m = JSON.parse(fs.readFileSync("manifest.json", "utf8"));
+            let [a, b, c] = m.version.split(".").map(Number);
+            const bump = process.env.BUMP;
+            if (bump === "major") { a++; b = 0; c = 0; }
+            else if (bump === "minor") { b++; c = 0; }
+            else { c++; }
+            m.version = `${a}.${b}.${c}`;
+            fs.writeFileSync("manifest.json", JSON.stringify(m, null, 2) + "\n");
+            const v = JSON.parse(fs.readFileSync("versions.json", "utf8"));
+            v[m.version] = m.minAppVersion;
+            fs.writeFileSync("versions.json", JSON.stringify(v, null, 2) + "\n");
+            console.log(`Bumped to ${m.version}`);
+          '
+          git config user.name "Karam Guliyev"
+          git config user.email "karamguliyev10@gmail.com"
+          git commit -am "Release $(node -p "require('./manifest.json').version")"
+          git push origin HEAD:master
 
       - name: Resolve version
         id: version
@@ -32,9 +72,10 @@ jobs:
               echo "Tag ${GITHUB_REF_NAME} does not match manifest.json version $v"; exit 1
             fi
           elif gh release view "$v" >/dev/null 2>&1; then
-            echo "Release $v already exists. Bump manifest.json first."; exit 1
+            echo "Release $v already exists. Run again with bump = patch, minor or major."; exit 1
           fi
           echo "tag=$v" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v2
@@ -48,9 +89,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ steps.version.outputs.tag }}
+          SHA: ${{ steps.version.outputs.sha }}
         run: |
           gh release create "$TAG" \
-            --target "${GITHUB_SHA}" \
+            --target "$SHA" \
             --title "$TAG" \
             --generate-notes \
             main.js manifest.json styles.css
