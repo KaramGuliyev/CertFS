@@ -15,18 +15,18 @@ It also re-quizzes your **errors** with new versions until you master them.
 ## 📑 Contents
 
 - [📥 Install](#-install)
-- [⚙️ Setup (once)](#-setup-once)
+- [⚙️ Setup (once)](#%EF%B8%8F-setup-once)
 - [🎯 Daily use](#-daily-use)
 - [🧩 Question types](#-question-types)
-- [🗂️ How it picks the subject](#-how-it-picks-the-subject)
+- [🗂️ How it picks the subject](#%EF%B8%8F-how-it-picks-the-subject)
 - [❌ Error notes (automatic)](#-error-notes-automatic)
 - [🔁 Errors → Archive (mastery)](#-errors--archive-mastery)
 - [📊 Answer history + stats](#-answer-history--stats)
 - [💸 Free limits (OpenRouter)](#-free-limits-openrouter)
-- [🛠️ Errors and fixes](#-errors-and-fixes)
+- [🛠️ Errors and fixes](#%EF%B8%8F-errors-and-fixes)
 - [🔒 Privacy](#-privacy)
 - [📝 What's new](#-whats-new)
-- [🧑‍💻 For developers](#-for-developers)
+- [🧑‍💻 For developers](#%E2%80%8D-for-developers)
 
 ---
 
