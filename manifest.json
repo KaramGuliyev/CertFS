@@ -1,7 +1,7 @@
 {
   "id": "certfs-quiz",
   "name": "CertFS Quiz",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "minAppVersion": "1.4.10",
   "description": "AI quizzes on a note, a selection, several notes or a folder with an OpenRouter model. Subjects, question styles and folders are set in Settings. Wrong answers become error notes, re-quizzed with fresh versions until mastered.",
   "author": "Karam",
