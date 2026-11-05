@@ -1,0 +1,21 @@
+name: Accessibility barrier
+description: Something makes CertFS Quiz hard or impossible to use for you
+labels: [accessibility]
+body:
+  - type: textarea
+    id: barrier
+    attributes:
+      label: What got in the way?
+      description: What you were trying to do and what blocked you.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and Obsidian version
+      placeholder: e.g. macOS, Obsidian 1.9.10
+  - type: input
+    id: at
+    attributes:
+      label: Assistive technology (if any)
+      placeholder: e.g. VoiceOver, NVDA, keyboard only, high-contrast theme

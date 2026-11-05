@@ -215,7 +215,7 @@ Presets (default folders, edit them in Settings):
 - 📚 New: **Quiz multiple notes**. Pick notes with search + checkboxes, or multi-select them in the file explorer and right-click.
 - 🔒 README → Privacy now lists the 2 network calls and why the vault file list is read.
 - 🛡️ Releases now carry GitHub artifact attestations (build provenance) for `main.js`, `manifest.json`, `styles.css`.
-- 🤝 Added `CONTRIBUTING.md`.
+- 🤝 Added `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `ACCESSIBILITY.md`, issue and PR templates.
 
 **0.3.4**
 - 🤖 Empty **Question style** → the AI infers the exam from the subject name + folder. Name + folder is enough to start.
